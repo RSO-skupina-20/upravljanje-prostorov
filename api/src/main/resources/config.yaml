@@ -1,0 +1,11 @@
+kumuluzee:
+  name: upravljanje-prostorov
+  version: 1.0.0
+  env:
+    name: dev
+  datasources:
+    - jndi-name: jdbc/upravljanje-prostorov
+      connection-url: jdbc:postgresql://localhost:5433/prostori
+      username: postgres
+      password: postgres
+      max-pool-size: 20

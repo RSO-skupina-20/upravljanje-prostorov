@@ -1,0 +1,2 @@
+INSERT INTO prostor (ime, lokacija, cena, velikost, opis, lastnik) VALUES ('Kavarna', 'Ljubljana', 50, 100, 'Kavarna v centru Ljubljane', 1);
+INSERT INTO prostor (ime, lokacija, cena, velikost, opis, lastnik) VALUES ('Kavarna', 'Maribor', 40, 80, 'Kavarna v centru Maribora', 2);

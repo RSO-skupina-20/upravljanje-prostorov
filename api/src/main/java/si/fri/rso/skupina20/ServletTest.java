@@ -28,5 +28,10 @@ public class ServletTest extends HttpServlet {
             writer.write("Prostor: " + prostor.getIme() + " " + prostor.getLokacija() + " " + prostor.getCena() + " " + prostor.getVelikost() + " " + prostor.getOpis() + " " + prostor.getLastnik() + "\n");
         }
 
+        // Search for a specific Prostor with id 1
+        Prostor prostor = prostorZrno.getProstor(1);
+        writer.write("Prostor: " + prostor.getIme() + " " + prostor.getLokacija() + " " + prostor.getCena() + " " + prostor.getVelikost() + " " + prostor.getOpis() + " " + prostor.getLastnik() + "\n");
+
+
     }
 }

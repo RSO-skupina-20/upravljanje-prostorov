@@ -2,6 +2,8 @@ package si.fri.rso.skupina20.zrna;
 
 import com.kumuluz.ee.rest.beans.QueryParameters;
 import com.kumuluz.ee.rest.utils.JPAUtils;
+import si.fri.rso.skupina20.auth.PreverjanjeZetonov;
+import si.fri.rso.skupina20.dtos.ProstorDTO;
 import si.fri.rso.skupina20.entitete.Prostor;
 import si.fri.rso.skupina20.izjeme.ProstorNeObstajaIzjema;
 
@@ -51,9 +53,20 @@ public class ProstorZrno {
     }
 
     @Transactional
-    public Prostor addProstor(Prostor prostor) {
-        // tu je potrebno klicati API mikrostoritve za avketikacijo
-        // da se preveri, če lastnik sploh obstaja
+    public Prostor addProstor(ProstorDTO prostorDTO, String token) {
+
+        Integer uporabnik_id = PreverjanjeZetonov.verifyToken(token);
+        if (uporabnik_id == -1) {
+            return null;
+        }
+        Prostor prostor = new Prostor();
+        prostor.setIme(prostorDTO.getIme());
+        prostor.setLokacija(prostorDTO.getLokacija());
+        prostor.setCena(prostorDTO.getCena());
+        prostor.setVelikost(prostorDTO.getVelikost());
+        prostor.setOpis(prostorDTO.getOpis());
+        prostor.setLastnik(uporabnik_id);
+
         try{
             em.persist(prostor);
             return prostor;

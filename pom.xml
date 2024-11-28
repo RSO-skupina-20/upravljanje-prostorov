@@ -26,6 +26,8 @@
         <kumuluzee-config-mp.version>2.0.0</kumuluzee-config-mp.version>
         <parboiled-java.version>1.4.1</parboiled-java.version>
         <kumuluzee-cors.version>2.0.0</kumuluzee-cors.version>
+        <com.auth0-java-jwt.version>4.4.0</com.auth0-java-jwt.version>
+        <kumuluzee-health.version>2.4.4</kumuluzee-health.version>
     </properties>
 
     <dependencyManagement>

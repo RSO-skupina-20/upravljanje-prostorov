@@ -8,8 +8,9 @@ ADD ./api/target/api-1.0-SNAPSHOT.jar /app
 
 EXPOSE 8080
 
-ENV DB_URL=jdbc:postgresql://host.docker.internal:5433/prostori
-ENV DB_USER=postgres
-ENV DB_PASSWORD=postgres
+ENV DB_URL=db_url \
+    DB_USER=db_user \
+    DB_PASSWORD=db_pass \
+    JWT_SECRET=jwt_secret
 
 ENTRYPOINT ["java", "-jar", "api-1.0-SNAPSHOT.jar"]

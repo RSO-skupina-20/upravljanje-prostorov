@@ -82,13 +82,17 @@ public class ProstorZrno {
     }
 
     @Transactional
-    public Prostor updateProstor(int id, Prostor prostor){
-        Prostor p = em.find(Prostor.class, id);
+    public Prostor updateProstor(Prostor prostor){
+        Prostor p = em.find(Prostor.class, prostor.getId());
 
+        if(p.getLastnik() != prostor.getLastnik()) {
+            log.info("Uporabnik nima pravic za spreminjanje prostora");
+            return null;
+        }
         // Če prostor ne obstaja, vrni izjemo
         if(p == null) {
             log.info("Prostor ne obstaja");
-            throw new ProstorNeObstajaIzjema("Prostor z id-jem " + id + " ne obstaja");
+            throw new ProstorNeObstajaIzjema("Prostor z id-jem " + prostor.getId() + " ne obstaja");
         }
         // Če je vnesen nov podatek, ga uporabi, sicer uporabi obstoječega
         prostor.setIme(defaultIfNull(prostor.getIme(), p.getIme()));

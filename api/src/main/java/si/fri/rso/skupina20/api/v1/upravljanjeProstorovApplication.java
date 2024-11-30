@@ -11,9 +11,9 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 @OpenAPIDefinition(info = @Info(
-        title = "Upravljanje prostorov API",
-        version = "v1",
-        description = "Upravljanje prostorov API omogoča upravljanje s prostori"),
+            title = "Upravljanje prostorov API",
+            version = "v1",
+            description = "Upravljanje prostorov API omogoča upravljanje s prostori"),
         servers = @Server(url = "http://localhost:8080"))
 @SecurityScheme(
         securitySchemeName = "bearerAuth",

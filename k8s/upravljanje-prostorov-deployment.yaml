@@ -4,7 +4,6 @@ metadata:
   name: upravljanje-prostorov-deployment
   labels:
     app: upravljanje-prostorov
-    shared: "true"
 spec:
   replicas: 1
   selector:
@@ -14,7 +13,6 @@ spec:
     metadata:
       labels:
         app: upravljanje-prostorov
-        shared: "true"
     spec:
       containers:
         - name: upravljanje-prostorov
@@ -25,13 +23,13 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /health/liveness
+              path: /health/live
               port: server
             initialDelaySeconds: 20
             periodSeconds: 3600
           readinessProbe:
             httpGet:
-              path: /health/readiness
+              path: /health/ready
               port: server
             initialDelaySeconds: 20
             periodSeconds: 3600

@@ -15,8 +15,8 @@ import javax.ws.rs.core.Application;
             version = "v1",
             description = "Upravljanje prostorov API omogoča upravljanje s prostori"),
         servers = {
-                @Server(url = "http://localhost:8080"),
-                @Server(url = "http://4.255.70.176:8080")
+                @Server(url = "http://http://135.234.190.217:8080"),
+                @Server(url = "http://localhost:8080")
         }
 )
 @SecurityScheme(

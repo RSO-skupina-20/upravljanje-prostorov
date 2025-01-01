@@ -19,7 +19,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-
   push_to_registry:
     name: Push to Docker Hub
     needs: build

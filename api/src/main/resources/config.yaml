@@ -23,5 +23,9 @@ kumuluzee:
         jndi-name: jdbc/upravljanje-prostorov
       disk-space-health-check:
         threshold: 100000000
+  metrics:
+    servlet:
+      enabled: true
+      mapping: /metrics
 
 

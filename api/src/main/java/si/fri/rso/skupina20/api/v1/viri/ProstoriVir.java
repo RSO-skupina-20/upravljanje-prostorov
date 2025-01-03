@@ -286,4 +286,48 @@ public class ProstoriVir {
         return Response.ok(prostor_updated).build();
     }
 
+    // prostori by lasnik
+
+    @GET
+    @Path("/lastnik/{id}")
+    @Operation(summary = "Pridobi prostore glede na lastnika", description = "Vrne prostore glede na lastnika")
+    @APIResponses({
+            @APIResponse(
+                    responseCode = "200",
+                    description = "Seznam prostorov",
+                    content = @Content(
+                            schema = @Schema(implementation = Prostor.class)
+                    ),
+                    headers = @Header(
+                            name = "X-Total-Count",
+                            description = "Število vrnjenih prostorov",
+                            schema = @Schema(type = SchemaType.INTEGER)
+                    )
+            ),
+            @APIResponse(
+                    responseCode = "404",
+                    description = "Lastnik ne obstaja",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    implementation = String.class,
+                                    example = "{\"napaka\": \"Lastnik z id 1 ne obstaja\"}"
+                            )
+                    )
+            )
+    })
+    public Response vrniProstoreLastnik(@PathParam("id") Integer id){
+        List<Prostor> prostori = prostorZrno.getProstoriByLastnik(id);
+
+        // uporabnik_id naj bo null
+        for (Prostor prostor : prostori) {
+            prostor.setLastnik(null);
+        }
+        if(prostori == null){
+            return Response.status(Response.Status.NOT_FOUND).entity("{\"napaka\": \"Lastnik z id " + id + " ne obstaja\"}").build();
+        }
+
+        return Response.ok(prostori).header("X-Total-Count", prostori.size()).build();
+    }
+
 }

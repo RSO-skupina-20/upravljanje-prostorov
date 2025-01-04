@@ -2,6 +2,7 @@ package si.fri.rso.skupina20.api.v1.viri;
 
 import com.kumuluz.ee.cors.annotations.CrossOrigin;
 import com.kumuluz.ee.rest.beans.QueryParameters;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.headers.Header;
@@ -68,6 +69,7 @@ public class ProstoriVir {
                     )
             )
     })
+    @Timed(name = "getProstoriTimer")
     public Response vrniProstore(){
         QueryParameters query = QueryParameters.query(uriInfo.getRequestUri().getQuery()).build();
         List<Prostor> prostori = prostorZrno.getProstori(query);

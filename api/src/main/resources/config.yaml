@@ -24,6 +24,7 @@ kumuluzee:
       disk-space-health-check:
         threshold: 100000000
   metrics:
+    add-default-tags: false
     servlet:
       enabled: true
       mapping: /metrics

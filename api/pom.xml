@@ -64,6 +64,13 @@
             <groupId>si.fri.rso.skupina20</groupId>
             <artifactId>storitve</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.kumuluz.ee.metrics</groupId>
+            <artifactId>kumuluzee-metrics-core</artifactId>
+            <version>${kumuluzee-metrics.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>

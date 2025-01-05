@@ -121,15 +121,16 @@ public class ProstorZrno {
     }
 
     public List<Prostor> getProstoriByLastnik(int lastnik) {
+        // preveri če obstaja uporabnik s tem id-jem in če je lastnik
         Query q = em.createNamedQuery("Prostor.getProstorLastnik", Prostor.class);
         q.setParameter("lastnik", lastnik);
-        List<Prostor> prostori = q.getResultList();
-
-        if (prostori.isEmpty()) {
-            log.info("Lastnik z id-jem " + lastnik + " nima prostorov");
+        try{
+            List<Prostor> prostori = q.getResultList();
+            return prostori;
+        } catch (Exception e) {
+            log.info("Napaka pri pridobivanju prostorov lastnika: " + e.getMessage());
             return null;
         }
-        return prostori;
     }
 
 

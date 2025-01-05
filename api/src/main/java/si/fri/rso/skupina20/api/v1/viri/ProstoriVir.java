@@ -2,6 +2,7 @@ package si.fri.rso.skupina20.api.v1.viri;
 
 import com.kumuluz.ee.cors.annotations.CrossOrigin;
 import com.kumuluz.ee.rest.beans.QueryParameters;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.headers.Header;
@@ -68,6 +69,7 @@ public class ProstoriVir {
                     )
             )
     })
+    @Timed(name = "getProstoriTimer")
     public Response vrniProstore(){
         QueryParameters query = QueryParameters.query(uriInfo.getRequestUri().getQuery()).build();
         List<Prostor> prostori = prostorZrno.getProstori(query);
@@ -284,6 +286,50 @@ public class ProstoriVir {
         }
 
         return Response.ok(prostor_updated).build();
+    }
+
+    // prostori by lasnik
+
+    @GET
+    @Path("/lastnik/{id}")
+    @Operation(summary = "Pridobi prostore glede na lastnika", description = "Vrne prostore glede na lastnika")
+    @APIResponses({
+            @APIResponse(
+                    responseCode = "200",
+                    description = "Seznam prostorov",
+                    content = @Content(
+                            schema = @Schema(implementation = Prostor.class)
+                    ),
+                    headers = @Header(
+                            name = "X-Total-Count",
+                            description = "Število vrnjenih prostorov",
+                            schema = @Schema(type = SchemaType.INTEGER)
+                    )
+            ),
+            @APIResponse(
+                    responseCode = "404",
+                    description = "Lastnik ne obstaja",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    implementation = String.class,
+                                    example = "{\"napaka\": \"Lastnik z id 1 ne obstaja\"}"
+                            )
+                    )
+            )
+    })
+    public Response vrniProstoreLastnik(@PathParam("id") Integer id){
+        List<Prostor> prostori = prostorZrno.getProstoriByLastnik(id);
+
+        // uporabnik_id naj bo null
+        for (Prostor prostor : prostori) {
+            prostor.setLastnik(null);
+        }
+        if(prostori == null){
+            return Response.status(Response.Status.NOT_FOUND).entity("{\"napaka\": \"Lastnik z id " + id + " ne obstaja\"}").build();
+        }
+
+        return Response.ok(prostori).header("X-Total-Count", prostori.size()).build();
     }
 
 }

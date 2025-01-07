@@ -20,6 +20,9 @@ import si.fri.rso.skupina20.zrna.ProstorZrno;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -70,7 +73,7 @@ public class ProstoriVir {
             )
     })
     @Timed(name = "getProstoriTimer")
-    public Response vrniProstore(){
+    public Response vrniProstore() {
         QueryParameters query = QueryParameters.query(uriInfo.getRequestUri().getQuery()).build();
         List<Prostor> prostori = prostorZrno.getProstori(query);
 
@@ -78,18 +81,13 @@ public class ProstoriVir {
         for (Prostor prostor : prostori) {
             prostor.setLastnik(null);
         }
-        if(prostori == null){
+        if (prostori == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("{\"napaka\": \"Prostorov ni mogoče najti\"}").build();
         }
         Long count = prostorZrno.getProstoriCount(query);
 
         return Response.ok(prostori).header("X-Total-Count", count).build();
     }
-
-
-
-
-
 
 
     // Pridobi prostor glede na id
@@ -100,16 +98,32 @@ public class ProstoriVir {
             @APIResponse(responseCode = "404", description = "Prostor ne obstaja", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class, example = "{\"napaka\": \"Prostor z id 1 ne obstaja\"}"))),
     })
     @Path("{id}")
-    public Response vrniProstor(@PathParam("id") Integer id){
+    public Response vrniProstor(@PathParam("id") Integer id) {
         Prostor prostor = prostorZrno.getProstor(id);
-        if(prostor == null){
+        if (prostor == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("{\"napaka\": \"Prostor z id " + id + " ne obstaja\"}").build();
         }
-        return Response.ok(prostor).build();
+
+        // Pridobitev vremenskih podatkov za lokacijo
+        JsonObject odgovor = Json.createObjectBuilder().build();
+        String lokacija = prostor.getLokacija();
+        JsonObject vreme = prostorZrno.pridobiVremeZaLokacijo(lokacija);
+
+        if (vreme != null) {
+            odgovor = Json.createObjectBuilder()
+                    .add("prostor", Json.createObjectBuilder()
+                            .add("id", prostor.getId())
+                            .add("ime", prostor.getIme())
+                            .add("lokacija", prostor.getLokacija())
+                            .add("cena", prostor.getCena())
+                            .add("velikost", prostor.getVelikost() != null ? Json.createValue(prostor.getVelikost()) : JsonValue.NULL)
+                            .add("opis", prostor.getOpis() != null ? Json.createValue(prostor.getOpis()) : JsonValue.NULL)
+                            .add("lastnik", prostor.getLastnik() != null ? Json.createValue(prostor.getLastnik()) : JsonValue.NULL))
+                    .add("vreme", vreme)
+                    .build();
+        }
+        return Response.ok(odgovor.toString()).build();
     }
-
-
-
 
 
     // Dodajanje prostora - lahko samo tip uporabnika LASTNIK
@@ -148,22 +162,19 @@ public class ProstoriVir {
     })
     @SecurityRequirement(name = "bearerAuth")
     public Response dodajProstor(@RequestBody(description = "Prostor za dodajanje", required = true, content = @Content(schema =
-        @Schema(implementation = ProstorDTO.class, example = "{\"ime\": \"Ime\", \"lokacija\": \"Lokacija\", \"cena\": 100.0, \"velikost\": 100, \"opis\": \"Opis\"}"))) ProstorDTO prostor, @HeaderParam("authorization") String authorization){
+    @Schema(implementation = ProstorDTO.class, example = "{\"ime\": \"Ime\", \"lokacija\": \"Lokacija\", \"cena\": 100.0, \"velikost\": 100, \"opis\": \"Opis\"}"))) ProstorDTO prostor, @HeaderParam("authorization") String authorization) {
 
-        if(prostor.getIme() == null || prostor.getLokacija() == null || prostor.getCena() == null || prostor.getOpis() == null){
+        if (prostor.getIme() == null || prostor.getLokacija() == null || prostor.getCena() == null || prostor.getOpis() == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("{\"napaka\": \"Manjkajo obvezni podatki\"}").build();
         }
 
         Prostor prostor_new = prostorZrno.addProstor(prostor, authorization);
-        if(prostor_new == null){
-           // neveljavna avtorizacija
+        if (prostor_new == null) {
+            // neveljavna avtorizacija
             return Response.status(Response.Status.NOT_FOUND).entity("{\"napaka\": \"Uporabnik ne obstaja\"}").build();
         }
         return Response.status(Response.Status.CREATED).entity(prostor_new).build();
     }
-
-
-
 
 
     // Izbris prostora - lahko le lastnik
@@ -215,10 +226,6 @@ public class ProstoriVir {
     }
 
 
-
-
-
-
     // Posodabljanje prostora - lahko le lastnik prostora
     @PUT
     @Path("{id}")
@@ -256,15 +263,15 @@ public class ProstoriVir {
     })
     @SecurityRequirement(name = "bearerAuth")
     public Response posodobiProstor(@RequestBody(description = "Prostor za posodabljanje", required = true, content = @Content(schema =
-        @Schema(implementation = ProstorDTO.class, example = "{\"id\": 1, \"ime\": \"Ime\", \"lokacija\": \"Lokacija\", \"cena\": 100.0, \"velikost\": 100, \"opis\": \"Opis\"}"))) ProstorDTO prostor, @HeaderParam("authorization") String authorization,
-                                    @PathParam("id") Integer id){
+    @Schema(implementation = ProstorDTO.class, example = "{\"id\": 1, \"ime\": \"Ime\", \"lokacija\": \"Lokacija\", \"cena\": 100.0, \"velikost\": 100, \"opis\": \"Opis\"}"))) ProstorDTO prostor, @HeaderParam("authorization") String authorization,
+                                    @PathParam("id") Integer id) {
 
-        if(prostor.getIme() == null && prostor.getLokacija() == null && prostor.getCena() == null && prostor.getVelikost() == null && prostor.getOpis() == null){
+        if (prostor.getIme() == null && prostor.getLokacija() == null && prostor.getCena() == null && prostor.getVelikost() == null && prostor.getOpis() == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("{\"napaka\": \"Manjkajo podatki za posodobitev\"}").build();
         }
 
         Integer uporabnik_id = PreverjanjeZetonov.verifyToken(authorization);
-        if(uporabnik_id == -1){
+        if (uporabnik_id == -1) {
             // Uporabnik ni LASTNIk in ne sme spreminjati prostora
             return Response.status(Response.Status.FORBIDDEN).entity("{\"napaka\": \"Nimate pravic za posodabljanje tega prostora\"}").build();
         }
@@ -281,7 +288,7 @@ public class ProstoriVir {
         Prostor prostor_updated = prostorZrno.updateProstor(prostor_new);
 
         // Če je prostor_updated null, uporabnik nima pravic za posodabljanje prostora
-        if(prostor_updated == null){
+        if (prostor_updated == null) {
             return Response.status(Response.Status.FORBIDDEN).entity("{\"napaka\": \"Nimate pravic za posodabljanje tega prostora\"}").build();
         }
 
@@ -318,14 +325,14 @@ public class ProstoriVir {
                     )
             )
     })
-    public Response vrniProstoreLastnik(@PathParam("id") Integer id){
+    public Response vrniProstoreLastnik(@PathParam("id") Integer id) {
         List<Prostor> prostori = prostorZrno.getProstoriByLastnik(id);
 
         // uporabnik_id naj bo null
         for (Prostor prostor : prostori) {
             prostor.setLastnik(null);
         }
-        if(prostori == null){
+        if (prostori == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("{\"napaka\": \"Lastnik z id " + id + " ne obstaja\"}").build();
         }
 

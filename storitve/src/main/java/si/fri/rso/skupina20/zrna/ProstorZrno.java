@@ -10,11 +10,19 @@ import si.fri.rso.skupina20.izjeme.ProstorNeObstajaIzjema;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -44,6 +52,37 @@ public class ProstorZrno {
         return em.find(Prostor.class, id);
     }
 
+    // Za pridobivanje vremena
+    public JsonObject pridobiVremeZaLokacijo(String lokacija) {
+        try {
+            String apiKey = System.getenv("WEATHER_API_KEY");
+            String urlString = "http://api.weatherapi.com/v1/forecast.json?key=" + apiKey + "&q=" + lokacija + "&days=3&aqi=no&alerts=no";
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+
+                try (JsonReader jsonReader = Json.createReader(new StringReader(response.toString()))) {
+                    return jsonReader.readObject();
+                }
+            } else {
+                log.info("Napaka pri pridobivanju vremena: " + responseCode);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public List<Prostor> getProstori(QueryParameters query) {
         return JPAUtils.queryEntities(em, Prostor.class, query);
     }
@@ -67,7 +106,7 @@ public class ProstorZrno {
         prostor.setOpis(prostorDTO.getOpis());
         prostor.setLastnik(uporabnik_id);
 
-        try{
+        try {
             em.persist(prostor);
             return prostor;
         } catch (Exception e) {
@@ -82,15 +121,15 @@ public class ProstorZrno {
     }
 
     @Transactional
-    public Prostor updateProstor(Prostor prostor){
+    public Prostor updateProstor(Prostor prostor) {
         Prostor p = em.find(Prostor.class, prostor.getId());
 
-        if(p.getLastnik() != prostor.getLastnik()) {
+        if (p.getLastnik() != prostor.getLastnik()) {
             log.info("Uporabnik nima pravic za spreminjanje prostora");
             return null;
         }
         // Če prostor ne obstaja, vrni izjemo
-        if(p == null) {
+        if (p == null) {
             log.info("Prostor ne obstaja");
             throw new ProstorNeObstajaIzjema("Prostor z id-jem " + prostor.getId() + " ne obstaja");
         }
@@ -112,7 +151,7 @@ public class ProstorZrno {
     @Transactional
     public boolean deleteProstor(int id) {
         Prostor p = em.find(Prostor.class, id);
-        if(p != null) {
+        if (p != null) {
             em.remove(p);
             return true;
         }
@@ -124,7 +163,7 @@ public class ProstorZrno {
         // preveri če obstaja uporabnik s tem id-jem in če je lastnik
         Query q = em.createNamedQuery("Prostor.getProstorLastnik", Prostor.class);
         q.setParameter("lastnik", lastnik);
-        try{
+        try {
             List<Prostor> prostori = q.getResultList();
             return prostori;
         } catch (Exception e) {

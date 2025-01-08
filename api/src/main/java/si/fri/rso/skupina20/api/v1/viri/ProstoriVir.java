@@ -94,7 +94,7 @@ public class ProstoriVir {
     @GET
     @Operation(summary = "Pridobi prostor glede na id", description = "Vrne prostor glede na id")
     @APIResponses({
-            @APIResponse(responseCode = "200", description = "Prostor", content = @Content(schema = @Schema(implementation = Prostor.class, example = "{\"id\": 1, \"ime\": \"Ime\", \"lokacija\": \"Lokacija\", \"cena\": 100.0, \"velikost\": 100, \"opis\": \"Opis\", \"lastnik\": 1}"))),
+            @APIResponse(responseCode = "200", description = "Prostor", content = @Content(schema = @Schema(implementation = Prostor.class, example = "{\"id\": 1, \"ime\": \"Ime\", \"lokacija\": \"Lokacija\", \"cena\": 100.0, \"velikost\": 100, \"opis\": \"Opis\", \"lastnik\": 1, \"vreme\": \"Dokumentacija formata vremena je na voljo na spletni strani: www.weatherapi.com\"}"))),
             @APIResponse(responseCode = "404", description = "Prostor ne obstaja", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class, example = "{\"napaka\": \"Prostor z id 1 ne obstaja\"}"))),
     })
     @Path("{id}")

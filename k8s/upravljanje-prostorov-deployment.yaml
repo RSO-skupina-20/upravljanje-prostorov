@@ -28,13 +28,6 @@ spec:
             initialDelaySeconds: 20
             periodSeconds: 3600
             failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /health/ready
-              port: 8080
-            initialDelaySeconds: 60
-            periodSeconds: 3600
-            failureThreshold: 3
           env:
             - name: DB_URL
               valueFrom:
@@ -56,6 +49,11 @@ spec:
                 secretKeyRef:
                   name: my-app-secrets
                   key: JWT_SECRET
+            - name: WEATHER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: weather-secrets
+                  key: WEATHER_API_KEY
 ---
 
 apiVersion: v1

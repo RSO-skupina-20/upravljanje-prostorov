@@ -1,0 +1,28 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "avtentikacija"
+    metrics_path: "/avtentikacija/metrics"
+    static_configs:
+      - targets: ["172.212.44.19:80"]
+        labels:
+          service: "avtentikacija"
+
+  - job_name: "upravljanje-prostorov"
+    metrics_path: "/upravljanje-prostorov/metrics"
+    static_configs:
+      - targets: ["172.212.44.19:80"]
+        labels:
+          service: "upravljanje-prostorov"
+
+  - job_name: "upravljanje-dogodkov"
+    metrics_path: "/upravljanje-dogodkov/metrics"
+    static_configs:
+      - targets: [ "172.212.44.19:80" ]
+        labels:
+          service: "upravljanje-dogodkov"
+
+
+
+# docker run -d --name=prometheus -p 9090:9090 -v C:\FRI\2.Letnik-mag\RSO\Projekt\upravljanje-prostorov\prometheus.yml:/etc/prometheus/prometheus.yml -v C:\FRI\2.Letnik-mag\RSO\Projekt\upravljanje-prostorov\prometheus-data:/prometheus prom/prometheus
